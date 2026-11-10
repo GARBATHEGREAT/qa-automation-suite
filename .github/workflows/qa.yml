@@ -1,0 +1,80 @@
+name: QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1" # every Monday, to catch changes in ReviewDesk's main branch
+  workflow_dispatch:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: reviewdesk
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/reviewdesk
+      JWT_SECRET: ci-secret-ci-secret-ci-secret
+      AUTH_RATE_LIMIT: "100000"
+      PORT: "4000"
+      WEB_DIST: ${{ github.workspace }}/app/web/dist
+    steps:
+      - name: Check out the tests
+        uses: actions/checkout@v4
+
+      - name: Check out ReviewDesk (the application under test)
+        uses: actions/checkout@v4
+        with:
+          repository: GARBATHEGREAT/reviewdesk
+          path: app
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build and start ReviewDesk
+        working-directory: app
+        run: |
+          npm ci
+          npm run build
+          npm run seed -w api
+          nohup node api/dist/server.js > ../app.log 2>&1 &
+          for i in $(seq 1 30); do curl -fs http://localhost:4000/ready && break; sleep 1; done
+
+      - name: Install the tests
+        run: npm ci
+
+      - name: Install the browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Run all tests (API, browser, regression, mobile)
+        run: npx playwright test
+
+      - name: Upload the test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 14
+
+      - name: Show the application log if something failed
+        if: failure()
+        run: tail -n 100 app.log
