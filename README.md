@@ -2,7 +2,9 @@
 
 [![QA](https://github.com/GARBATHEGREAT/qa-automation-suite/actions/workflows/qa.yml/badge.svg)](https://github.com/GARBATHEGREAT/qa-automation-suite/actions/workflows/qa.yml)
 
-Automated quality assurance for [ReviewDesk](https://github.com/GARBATHEGREAT/reviewdesk), a full-stack app I built:
+**Live test report: https://garbathegreat.github.io/qa-automation-suite/** (rebuilt on every push)
+
+Automated quality assurance for [ReviewDesk](https://github.com/GARBATHEGREAT/reviewdesk) (live: https://reviewdesk-theta.vercel.app), a full-stack app I built:
 **browser tests, API tests, regression tests, accessibility checks and continuous integration**, written with Playwright and TypeScript.
 
 The suite found **four real bugs** in the application during development. Each one has a written bug report, a fix and a regression test:
