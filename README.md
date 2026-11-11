@@ -43,7 +43,7 @@ You need Node.js 20 or newer and a running ReviewDesk with demo data.
    ```powershell
    $env:AUTH_RATE_LIMIT = "100000"
    ```
-   Then run `npm run seed` and start the app (`npm run build`, then `WEB_DIST=../web/dist node dist/server.js` from `api`, or `docker compose up`).
+   Then run `npm run seed` and start the app (`npm run build`, then `WEB_DIST=../web/dist node dist/server.js` from `server`, or `docker compose up`).
 
 2. Install and run the tests:
 

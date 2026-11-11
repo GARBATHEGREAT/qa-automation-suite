@@ -49,8 +49,8 @@ jobs:
         run: |
           npm ci
           npm run build
-          npm run seed -w api
-          nohup node api/dist/server.js > ../app.log 2>&1 &
+          npm run seed -w server
+          nohup node server/dist/server.js > ../app.log 2>&1 &
           for i in $(seq 1 30); do curl -fs http://localhost:4000/ready && break; sleep 1; done
 
       - name: Install the tests
